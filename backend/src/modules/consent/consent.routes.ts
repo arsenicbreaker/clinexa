@@ -110,14 +110,34 @@ router.post('/consents/:consentId/approve', async (req, res, next) => {
       .from('consent_requests')
       .update({ status: 'approved' })
       .eq('id', consent.id)
-      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,updated_at')
+      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,onchain_consent_pda,updated_at')
       .single();
 
     if (error) {
       throw error;
     }
 
-    await solanaService.recordConsent({ consentId: data.id, status: 'approved' });
+    const onchain = await solanaService.recordConsent({
+      consentId: data.id,
+      patientId: data.patient_id,
+      doctorId: data.doctor_id,
+      scope: data.scope,
+      expiresAt: data.expires_at,
+      status: 'approved'
+    });
+    if (onchain.pda) {
+      const { error: updateError } = await supabaseAdmin
+        .from('consent_requests')
+        .update({ onchain_consent_pda: onchain.pda })
+        .eq('id', data.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      data.onchain_consent_pda = onchain.pda;
+    }
+
     await createAccessLog({
       patientId: data.patient_id,
       doctorId: data.doctor_id,
@@ -141,7 +161,7 @@ router.post('/consents/:consentId/reject', async (req, res, next) => {
       .from('consent_requests')
       .update({ status: 'rejected' })
       .eq('id', consent.id)
-      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,updated_at')
+      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,onchain_consent_pda,updated_at')
       .single();
 
     if (error) {
@@ -171,14 +191,25 @@ router.post('/consents/:consentId/revoke', async (req, res, next) => {
       .from('consent_requests')
       .update({ status: 'revoked' })
       .eq('id', consent.id)
-      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,updated_at')
+      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,onchain_consent_pda,updated_at')
       .single();
 
     if (error) {
       throw error;
     }
 
-    await solanaService.recordConsent({ consentId: data.id, status: 'revoked' });
+    const onchain = await solanaService.recordConsent({
+      consentId: data.id,
+      patientId: data.patient_id,
+      doctorId: data.doctor_id,
+      scope: data.scope,
+      expiresAt: data.expires_at,
+      status: 'revoked'
+    });
+    if (onchain.pda) {
+      data.onchain_consent_pda = onchain.pda;
+    }
+
     await createAccessLog({
       patientId: data.patient_id,
       doctorId: data.doctor_id,
@@ -213,7 +244,7 @@ router.get('/consents/patient/:patientId', async (req, res, next) => {
 
     const { data, error } = await supabaseAdmin
       .from('consent_requests')
-      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,created_at,updated_at')
+      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,onchain_consent_pda,created_at,updated_at')
       .eq('patient_id', req.params.patientId)
       .order('created_at', { ascending: false });
 
@@ -234,7 +265,7 @@ router.get('/consents/doctor/:doctorId', async (req, res, next) => {
 
     const { data, error } = await supabaseAdmin
       .from('consent_requests')
-      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,created_at,updated_at')
+      .select('id,patient_id,doctor_id,clinic_id,status,scope,expires_at,onchain_consent_pda,created_at,updated_at')
       .eq('doctor_id', doctor.id)
       .order('created_at', { ascending: false });
 

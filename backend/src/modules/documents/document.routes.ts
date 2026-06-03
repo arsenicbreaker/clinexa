@@ -41,17 +41,27 @@ async function getOwnDoctor(profileId: string, doctorId: string) {
   return data;
 }
 
-async function hasActiveConsent(patientId: string, doctorId: string) {
-  const { data, error } = await supabaseAdmin.rpc('has_active_consent', {
-    p_patient_id: patientId,
-    p_doctor_id: doctorId
-  });
+async function getActiveConsent(patientId: string, doctorId: string) {
+  const { data, error } = await supabaseAdmin
+    .from('consent_requests')
+    .select('id')
+    .eq('patient_id', patientId)
+    .eq('doctor_id', doctorId)
+    .eq('status', 'approved')
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   if (error) {
     throw error;
   }
 
-  return data === true;
+  return data;
+}
+
+async function hasActiveConsent(patientId: string, doctorId: string) {
+  return Boolean(await getActiveConsent(patientId, doctorId));
 }
 
 async function getPatientForProfile(profileId: string, patientId: string) {
@@ -94,9 +104,9 @@ router.post('/documents', upload.single('file'), async (req, res, next) => {
 
     const body = createDocumentSchema.parse(req.body);
     const doctor = await getOwnDoctor(profile.id, body.doctorId);
-    const allowed = await hasActiveConsent(body.patientId, doctor.id);
+    const activeConsent = await getActiveConsent(body.patientId, doctor.id);
 
-    if (!allowed) {
+    if (!activeConsent) {
       await createAccessLog({
         patientId: body.patientId,
         doctorId: doctor.id,
@@ -146,11 +156,28 @@ router.post('/documents', upload.single('file'), async (req, res, next) => {
       throw error;
     }
 
-    await solanaService.registerDocumentHash({
+    const onchain = await solanaService.registerDocumentHash({
       documentId: data.id,
+      patientId: data.patient_id,
+      doctorId: data.uploaded_by_doctor_id,
+      consentId: activeConsent.id,
+      documentType: data.document_type,
       fileHash: data.file_hash,
       metadataHash: data.metadata_hash
     });
+    if (onchain.pda) {
+      const { error: updateError } = await supabaseAdmin
+        .from('medical_documents')
+        .update({ onchain_document_pda: onchain.pda })
+        .eq('id', data.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      data.onchain_document_pda = onchain.pda;
+    }
+
     await createAccessLog({
       patientId: body.patientId,
       doctorId: doctor.id,

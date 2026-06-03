@@ -4,6 +4,7 @@ import { supabaseAdmin } from '../../config/supabase.js';
 import { type AuthedRequest, requireRole } from '../../middleware/auth.middleware.js';
 import { encryptJson } from '../encryption/encryption.service.js';
 import { sendCreated } from '../../utils/http.js';
+import { solanaService } from '../solana/solana.service.js';
 
 const router = Router();
 
@@ -30,6 +31,22 @@ router.post('/patients', async (req, res, next) => {
 
     if (error) {
       throw error;
+    }
+
+    const onchain = await solanaService.registerPatient({ patientId: data.id });
+    if (onchain.pda) {
+      const { data: updated, error: updateError } = await supabaseAdmin
+        .from('patients')
+        .update({ onchain_patient_pda: onchain.pda })
+        .eq('id', data.id)
+        .select('id,profile_id,patient_code,onchain_patient_pda,created_at')
+        .single();
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return sendCreated(res, updated);
     }
 
     return sendCreated(res, data);

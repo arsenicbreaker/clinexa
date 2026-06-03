@@ -27,6 +27,19 @@ openssl rand -base64 32
 
 Apply `supabase/migrations/001_initial_schema.sql` to the Supabase project before running the API.
 
+## Solana Mode
+
+If `SOLANA_RPC_URL`, `SOLANA_PROGRAM_ID`, and `SOLANA_PAYER_PRIVATE_KEY` are set, the backend sends transactions to the Clinexa Solana program. If any of them are omitted, `SolanaService` stays in stub mode and the API keeps working without on-chain writes.
+
+For local development:
+
+```bash
+solana-test-validator
+anchor deploy
+```
+
+For devnet, set `SOLANA_RPC_URL=https://api.devnet.solana.com`, fund the backend payer wallet, and deploy the program with the same program id configured in `SOLANA_PROGRAM_ID`.
+
 ## Upload Flow
 
 `POST /documents` expects `multipart/form-data`:
