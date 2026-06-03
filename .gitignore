@@ -1,2 +1,35 @@
+# Dependencies
 node_modules/
+*/node_modules/
+
+# Build outputs and caches
 dist/
+*/dist/
+target/
+.anchor/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Local environment files
+.env
+.env.*
+!.env.example
+*/.env
+*/.env.*
+!*/.env.example
+*.local
+
+# Local wallets, deploy keys, and generated Solana keypairs
+backend/backend-payer.json
+target/deploy/*-keypair.json
+*.keypair.json
+id.json
+
+# Local planning/private notes
+PLAN.md
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
