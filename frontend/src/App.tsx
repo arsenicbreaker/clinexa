@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import logoImg from '../pictures/Logo1.png';
 import {
   Activity,
   AlertCircle,
@@ -285,14 +286,11 @@ function getTodayLabel() {
     year: 'numeric'
   }).format(new Date());
 }
-
+// tempat logo
 function Logo({ inverted = false }: { inverted?: boolean }) {
   return (
     <div className={`brand-logo ${inverted ? 'brand-logo-inverted' : ''}`} aria-label="Clinexa">
-      <span className="logo-mark" aria-hidden="true">
-        <span />
-      </span>
-      <span>LINEXA</span>
+      <img src={logoImg} alt="Clinexa Logo" style={{ height: '50px', objectFit: 'contain' }} />
     </div>
   );
 }
@@ -560,17 +558,17 @@ function AuthPortal({
         mode === 'signin'
           ? await supabase.auth.signInWithPassword({ email, password })
           : await supabase.auth.signUp({
-              email,
-              password,
-              options: {
-                data: {
-                  full_name: fullName,
-                  specialization,
-                  registration_id: registrationId,
-                  institution
-                }
+            email,
+            password,
+            options: {
+              data: {
+                full_name: fullName,
+                specialization,
+                registration_id: registrationId,
+                institution
               }
-            });
+            }
+          });
       if (result.error) {
         throw result.error;
       }
