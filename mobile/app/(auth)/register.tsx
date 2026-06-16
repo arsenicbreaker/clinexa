@@ -76,8 +76,8 @@ export default function RegisterScreen() {
         }
         // Implementasi logika registrasi di sini
         console.log('Register ditekan', { name, gender, birthDate, bloodType });
-        // Simulasikan status login aktif
-        authState.login();
+        // Arahkan ke halaman seedphrase setelah data diisi
+        router.push('/(auth)/seedphrase');
     };
 
     const selectGender = (selectedGender: string) => {

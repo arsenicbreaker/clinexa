@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -11,19 +10,13 @@ export default function OnboardScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                {/* Placeholder for the illustration */}
+                {/* Onboarding illustration */}
                 <View style={styles.illustrationContainer}>
-                    <View style={styles.documentIcon1}>
-                        <Ionicons name="document-text" size={100} color="#E0F2F1" />
-                    </View>
-                    <View style={styles.documentIcon2}>
-                        <Ionicons name="document-text" size={120} color="#B2DFDB" />
-                    </View>
-                    <View style={styles.magnifyingGlass}>
-                        <View style={styles.searchIconBackground}>
-                            <Ionicons name="search" size={32} color="#FFFFFF" />
-                        </View>
-                    </View>
+                    <Image
+                        source={require('../../assets/images/onboard.png')}
+                        style={styles.onboardImage}
+                        resizeMode="contain"
+                    />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -74,39 +67,9 @@ const styles = StyleSheet.create({
         position: 'relative',
         marginTop: 20,
     },
-    documentIcon1: {
-        position: 'absolute',
-        left: 20,
-        top: 40,
-        transform: [{ rotate: '-15deg' }],
-    },
-    documentIcon2: {
-        position: 'absolute',
-        right: 30,
-        top: 20,
-        transform: [{ rotate: '5deg' }],
-    },
-    magnifyingGlass: {
-        position: 'absolute',
-        bottom: 60,
-        left: '40%',
-        backgroundColor: '#1BA098',
-        borderRadius: 40,
-        padding: 16,
-        borderWidth: 4,
-        borderColor: '#FFFFFF',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    searchIconBackground: {
-        justifyContent: 'center',
-        alignItems: 'center',
+    onboardImage: {
+        width: '100%',
+        height: '100%',
     },
     textContainer: {
         alignItems: 'center',

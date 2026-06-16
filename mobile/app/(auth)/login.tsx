@@ -20,7 +20,7 @@ import { authState } from '../../constants/auth';
 export default function LoginScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'recovery' | 'qr'>('recovery');
-  
+
   // Animation values
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scanAnim = useRef(new Animated.Value(0)).current;
@@ -60,7 +60,7 @@ export default function LoginScreen() {
 
   const switchTab = (tab: 'recovery' | 'qr') => {
     if (tab === activeTab) return;
-    
+
     // Smooth fade transition
     Animated.timing(fadeAnim, {
       toValue: 0,
@@ -84,7 +84,7 @@ export default function LoginScreen() {
     console.log('Recovery phrase submitted:', recoveryPhrase);
     alert('Akun berhasil dimuat!');
     authState.login();
-    router.replace('/(tabs)');
+    router.replace('/(dashboard)');
   };
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
@@ -92,7 +92,7 @@ export default function LoginScreen() {
     console.log('Barcode scanned:', data);
     alert(`Kode QR berhasil dipindai: ${data}`);
     authState.login();
-    router.replace('/(tabs)');
+    router.replace('/(dashboard)');
   };
 
   // Interpolate translateY for the scanning laser line
@@ -104,7 +104,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-      
+
       {/* Top Navbar */}
       <View style={styles.navbarContainer}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.6}>
@@ -114,12 +114,12 @@ export default function LoginScreen() {
         <View style={styles.spacer} />
       </View>
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent} 
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           bounces={false}
           keyboardShouldPersistTaps="handled"
@@ -136,7 +136,7 @@ export default function LoginScreen() {
                   Kata Sandi Pemulihan
                 </Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[styles.tabButton, activeTab === 'qr' && styles.tabButtonActive]}
                 onPress={() => switchTab('qr')}
@@ -153,7 +153,7 @@ export default function LoginScreen() {
               {activeTab === 'recovery' ? (
                 /* --- KATA SANDI PEMULIHAN FORM --- */
                 <View style={styles.tabContent}>
-                  
+
                   {/* Header Title with Shield Icon */}
                   <View style={styles.contentHeader}>
                     <Text style={styles.contentTitle}>Kata Sandi Pemulihan</Text>
@@ -184,8 +184,8 @@ export default function LoginScreen() {
 
                   {/* Continue Button specifically for Recovery Phrase */}
                   <View style={styles.bottomButtonContainer}>
-                    <TouchableOpacity 
-                      style={styles.continueButton} 
+                    <TouchableOpacity
+                      style={styles.continueButton}
                       onPress={handleContinue}
                       activeOpacity={0.8}
                     >
@@ -196,7 +196,7 @@ export default function LoginScreen() {
               ) : (
                 /* --- PINDAI KODE QR VIEW --- */
                 <View style={styles.tabContent}>
-                  
+
                   {/* Header Title with QR Icon */}
                   <View style={styles.contentHeader}>
                     <Text style={styles.contentTitle}>Pindai Kode QR</Text>
@@ -220,9 +220,9 @@ export default function LoginScreen() {
                         <Text style={styles.permissionText}>
                           Akses kamera diperlukan untuk memindai kode QR
                         </Text>
-                        <TouchableOpacity 
-                          style={styles.permissionButton} 
-                          onPress={requestPermission} 
+                        <TouchableOpacity
+                          style={styles.permissionButton}
+                          onPress={requestPermission}
                           activeOpacity={0.7}
                         >
                           <Text style={styles.permissionButtonText}>Berikan Izin Kamera</Text>

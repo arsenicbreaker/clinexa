@@ -29,15 +29,15 @@ export default function RootLayout() {
       // Jika belum login dan tidak berada di halaman auth, paksa pindah ke screen
       router.replace('/(auth)/screen');
     } else if (isLoggedIn && inAuthGroup) {
-      // Jika sudah login tapi masih di halaman auth, paksa pindah ke tabs
-      router.replace('/(tabs)');
+      // Jika sudah login tapi masih di halaman auth, paksa pindah ke dashboard
+      router.replace('/(dashboard)');
     }
   }, [isLoggedIn, segments, isReady]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
 
       <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
     </Stack>
